@@ -9,7 +9,7 @@ A small Next.js app for weighted multiple-choice votes on subnet 41 (SN41). The 
 - **Weighted tally.** An option's weight is the sum of the alpha stored on its votes. Its share is that sum divided by the question's total alpha. All math is integer (9-decimal raw units).
 - **Public.** The tally and every vote (wallet, alpha, choice, time) are visible to everyone, including while a question is open.
 - **Votes are signed.** Voting is a second message signature that names the question and the option. The server issues a single-use challenge for exactly that question and option, so a sign-in signature cannot be replayed as a vote, and a signature for one option cannot be used for another. A vote needs more than zero SN41 alpha.
-- **Storage.** Votes go in a SQLite file, `data/votes.sqlite` by default (override with `VOTES_DB_PATH`, gitignored). A primary key on `(question_id, address)` is what enforces the lock. This assumes a single Node server with a persistent disk. For serverless or several instances, implement `VoteStore` (`lib/voteStore.ts`) on a hosted database.
+- **Storage.** When `DATABASE_URL` is set, votes and sign-in challenges go in Postgres (Neon on Vercel). A primary key on `(question_id, address)` enforces the lock, and a challenge is consumed with one `DELETE ... RETURNING`. Without `DATABASE_URL`, votes go in a SQLite file, `data/votes.sqlite` by default (override with `VOTES_DB_PATH`, gitignored), and challenges stay in memory. That file path assumes a single Node server with a persistent disk.
 
 ### Voting API
 
@@ -58,7 +58,8 @@ cp .env.example .env.local
 | `BITTENSOR_RPC_URL` | `wss://test.finney.opentensor.ai:443` | Bittensor RPC WebSocket endpoint (testnet by default). |
 | `APP_DOMAIN` | `localhost:3000` | Domain shown in the signed message. Set it to your real domain in production. |
 | `CHALLENGE_TTL_SECONDS` | `300` | How long a challenge is valid, in seconds. |
-| `VOTES_DB_PATH` | `data/votes.sqlite` | SQLite file where votes are stored. |
+| `DATABASE_URL` | unset | Postgres connection string. When set, votes and challenges use this database instead of the local file. |
+| `VOTES_DB_PATH` | `data/votes.sqlite` | SQLite file where votes are stored when `DATABASE_URL` is unset. |
 
 ## Run locally against testnet
 
@@ -128,10 +129,13 @@ lib/
   castVote.ts               Vote rules: window, lock, signature binding, alpha snapshot
   tally.ts                  Weighted tally and the public ballot view
   voteStore.ts              VoteStore interface + in-memory implementation (tests)
-  sqliteVoteStore.ts        SQLite VoteStore and the process-wide instance
+  sqliteVoteStore.ts        SQLite VoteStore and the process-wide vote store
+  postgres.ts               Neon client and schema
+  postgresVoteStore.ts      Postgres VoteStore
+  challengeStore.ts         ChallengeStore interface, memory store, process-wide store
+  postgresChallengeStore.ts Postgres ChallengeStore
   config.ts                 Environment variable parsing and defaults
   validation.ts             SS58 address and signature hex validation
-  challengeStore.ts         ChallengeStore interface + in-memory implementation
   challenge.ts              Nonce + message construction
   signature.ts              signatureVerify (wrapped and unwrapped)
   verifyChallenge.ts        Single-use challenge verification (no chain access)
@@ -144,7 +148,7 @@ tests/voting.test.ts        Offline voting tests: windows, tally math, locks, si
 
 ## Production notes
 
-- **Challenge storage:** the in-memory store only works for a single server process and is lost on restart. For multiple instances or serverless hosting, implement `ChallengeStore` in `lib/challengeStore.ts` on top of Redis (for example `SET key value EX ttl` plus `GETDEL` for `take`) or a database, and return it from `getChallengeStore()`.
+- **Challenge storage:** with `DATABASE_URL` set, challenges live in Postgres and survive a cold start. Without it, the in-memory store only works for a single server process and is lost on restart.
 - **Rate limiting:** add rate limiting on both endpoints (per IP and per address).
 - **HTTPS:** serve over HTTPS, and set `APP_DOMAIN` to the domain users actually see, so the signed message names your site.
 - **Sessions:** this app only reports the result. If you need to gate content, issue a signed session (for example an HTTP-only cookie) from `/api/verify` when `passes` is true.

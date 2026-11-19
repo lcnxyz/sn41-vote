@@ -1,3 +1,5 @@
+import { PostgresChallengeStore } from './postgresChallengeStore';
+
 export type ChallengePurpose = 'sign-in' | 'vote';
 
 export interface StoredChallenge {
@@ -72,9 +74,18 @@ export class MemoryChallengeStore implements ChallengeStore {
 
 const globalForStore = globalThis as unknown as { __challengeStore?: ChallengeStore };
 
+/**
+ * Process-wide store. Uses Postgres when `DATABASE_URL` is set, so a challenge
+ * issued on one serverless instance can be consumed on another. Otherwise the
+ * in-memory store, which is enough for one local Node process.
+ */
 export function getChallengeStore(): ChallengeStore {
   if (!globalForStore.__challengeStore) {
-    globalForStore.__challengeStore = new MemoryChallengeStore();
+    if (process.env.DATABASE_URL?.trim()) {
+      globalForStore.__challengeStore = new PostgresChallengeStore();
+    } else {
+      globalForStore.__challengeStore = new MemoryChallengeStore();
+    }
   }
   return globalForStore.__challengeStore;
 }

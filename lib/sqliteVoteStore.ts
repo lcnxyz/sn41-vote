@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { PostgresVoteStore } from './postgresVoteStore';
 import type { InsertVoteResult, Vote, VoteStore } from './voteStore';
 
 interface VoteRow {
@@ -73,11 +74,18 @@ export class SqliteVoteStore implements VoteStore {
 
 const globalForStore = globalThis as unknown as { __voteStore?: VoteStore };
 
-/** Process-wide store at `VOTES_DB_PATH` (default `data/votes.sqlite`). */
+/**
+ * Process-wide store. Uses Postgres when `DATABASE_URL` is set (Vercel), and a
+ * SQLite file at `VOTES_DB_PATH` (default `data/votes.sqlite`) otherwise.
+ */
 export function getVoteStore(): VoteStore {
   if (!globalForStore.__voteStore) {
-    const file = process.env.VOTES_DB_PATH?.trim() || resolve(process.cwd(), 'data', 'votes.sqlite');
-    globalForStore.__voteStore = new SqliteVoteStore(file);
+    if (process.env.DATABASE_URL?.trim()) {
+      globalForStore.__voteStore = new PostgresVoteStore();
+    } else {
+      const file = process.env.VOTES_DB_PATH?.trim() || resolve(process.cwd(), 'data', 'votes.sqlite');
+      globalForStore.__voteStore = new SqliteVoteStore(file);
+    }
   }
   return globalForStore.__voteStore;
 }

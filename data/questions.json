@@ -2,7 +2,7 @@
   {
     "id": "example-emissions-focus",
     "title": "Where should the subnet focus next quarter?",
-    "body": "Example question. Replace or edit this entry in data/questions.json and redeploy to publish your own.",
+    "body": "The next quarter has room for one priority. Pick where the subnet should put its time and budget. The result guides the work plan the team publishes after this vote closes.",
     "opensAt": "2026-11-19T00:00:00Z",
     "closesAt": "2026-12-31T23:59:59Z",
     "options": [
@@ -14,7 +14,7 @@
   {
     "id": "example-emission-split",
     "title": "How should miner and validator emissions be split?",
-    "body": "Example question. Replace or edit this entry in data/questions.json and redeploy to publish your own.",
+    "body": "Emissions are split evenly today. This vote decides whether that stays, or shifts ten points toward miners or toward validators. The winning split is what the subnet will propose for the next emissions change.",
     "opensAt": "2026-11-19T00:00:00Z",
     "closesAt": "2026-12-31T23:59:59Z",
     "options": [
@@ -26,7 +26,7 @@
   {
     "id": "example-vote-cadence",
     "title": "How often should the subnet run a vote?",
-    "body": "Example question. Replace or edit this entry in data/questions.json and redeploy to publish your own.",
+    "body": "This sets the cadence for later ballots. A monthly or quarterly schedule means a vote even when nothing urgent is pending. Voting only when a decision comes up means a ballot is opened for that decision alone.",
     "opensAt": "2026-11-19T00:00:00Z",
     "closesAt": "2026-12-31T23:59:59Z",
     "options": [

@@ -362,7 +362,7 @@ export default function Ballot() {
         const labelFor = (optionId: string) => question.options.find((option) => option.id === optionId)?.label ?? optionId;
 
         return (
-          <section className="card" key={question.id}>
+          <section className="card question" key={question.id}>
             <div className="question-head">
               <h3 className="question-title">{question.title}</h3>
               <span className={`status ${question.status}`}>{question.status}</span>

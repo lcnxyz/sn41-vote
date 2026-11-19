@@ -1,0 +1,38 @@
+[
+  {
+    "id": "example-emissions-focus",
+    "title": "Where should the subnet focus next quarter?",
+    "body": "Example question. Replace or edit this entry in data/questions.json and redeploy to publish your own.",
+    "opensAt": "2026-11-19T00:00:00Z",
+    "closesAt": "2026-12-31T23:59:59Z",
+    "options": [
+      { "id": "miners", "label": "Miner incentives and onboarding" },
+      { "id": "validators", "label": "Validator tooling and scoring" },
+      { "id": "product", "label": "Product and customer integrations" }
+    ]
+  },
+  {
+    "id": "example-emission-split",
+    "title": "How should miner and validator emissions be split?",
+    "body": "Example question. Replace or edit this entry in data/questions.json and redeploy to publish your own.",
+    "opensAt": "2026-11-19T00:00:00Z",
+    "closesAt": "2026-12-31T23:59:59Z",
+    "options": [
+      { "id": "miners-heavy", "label": "Lean toward miners (60/40)" },
+      { "id": "even", "label": "Keep the split even (50/50)" },
+      { "id": "validators-heavy", "label": "Lean toward validators (40/60)" }
+    ]
+  },
+  {
+    "id": "example-vote-cadence",
+    "title": "How often should the subnet run a vote?",
+    "body": "Example question. Replace or edit this entry in data/questions.json and redeploy to publish your own.",
+    "opensAt": "2026-11-19T00:00:00Z",
+    "closesAt": "2026-12-31T23:59:59Z",
+    "options": [
+      { "id": "monthly", "label": "Once a month" },
+      { "id": "quarterly", "label": "Once a quarter" },
+      { "id": "as-needed", "label": "Only when a decision comes up" }
+    ]
+  }
+]
